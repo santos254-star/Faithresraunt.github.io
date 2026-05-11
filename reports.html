@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1" />
+    <title>Sales Reports - Faith Restaurant</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/responsive.css" />
+    <style>
+        .reports-container {
+            padding: 40px 0;
+            background: #f8f8f8;
+            min-height: 100vh;
+        }
+        
+        .report-header {
+            background: #fff;
+            padding: 20px;
+            border-bottom: 3px solid #ffbe33;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .report-header h1 {
+            color: #222831;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .report-header h1 span {
+            background: #ffbe33;
+            color: #222831;
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+        
+        .report-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .report-controls button {
+            background: #ffbe33;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #222831;
+            transition: all 0.3s ease;
+        }
+        
+        .report-controls button:hover {
+            background: #ffb300;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255,190,51,0.3);
+        }
+        
+        .report-controls button.active {
+            background: #222831;
+            color: #ffbe33;
+        }
+        
+        .tabs-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .tabs-nav button {
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tabs-nav button.active {
+            color: #ffbe33;
+            border-bottom-color: #ffbe33;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .report-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid #ffbe33;
+        }
+        
+        .report-card h3 {
+            color: #222831;
+            margin: 0 0 15px 0;
+            font-weight: bold;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #ffbe33 0%, #ffb300 100%);
+            padding: 20px;
+            border-radius: 8px;
+            color: #222831;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(255,190,51,0.2);
+        }
+        
+        .stat-box h4 {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+        
+        .stat-box .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0 0 0;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        .table {
+            width: 100%;
+            margin: 0;
+        }
+        
+        .table thead {
+            background: #222831;
+            color: #fff;
+        }
+        
+        .table thead th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+        
+        .table tbody td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        
+        .table tbody tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .item-name {
+            font-weight: 600;
+            color: #222831;
+        }
+        
+        .item-quantity {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .item-price {
+            color: #ffbe33;
+            font-weight: bold;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .no-data p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            margin: 20px 0;
+            height: 300px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 250px;
+            gap: 10px;
+        }
+        
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, #ffbe33, #ffb300);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            min-height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 5px;
+        }
+        
+        .bar-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .bar-value {
+            font-size: 11px;
+            color: #222831;
+            font-weight: bold;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .clear-data-btn {
+            background: #dc3545;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            margin-top: 20px;
+        }
+        
+        .clear-data-btn:hover {
+            background: #c82333;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .navbar, .footer, .report-controls, .clear-data-btn, .cart-panel {
+                display: none !important;
+            }
+            
+            .reports-container {
+                padding: 0;
+                background: white;
+            }
+            
+            .report-header {
+                border-bottom: 2px solid #000;
+                page-break-after: avoid;
+            }
+            
+            .report-card {
+                page-break-inside: avoid;
+                border: 1px solid #ccc;
+                box-shadow: none;
+            }
+            
+            .table {
+                border-collapse: collapse;
+            }
+            
+            .table thead {
+                background: #222831 !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .table thead th {
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+            
+            .stat-box {
+                border: 1px solid #ccc;
+                box-shadow: none;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero_area">
+        <header class="header_section">
+            <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container">
+                    <a class="navbar-brand" href="index.html">
+                        <span>Faith</span>
+                    </a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class=""></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav" style="margin-left: auto;">
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.html">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="menu.html">Menu</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="about.html">About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="book.html">Book</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="reports.html">Reports</a>
+                            </li>
+                            <li class="nav-item">
+                                <form class="search-form" style="margin-left: 12px;">
+                                    <input type="text" class="search-input" placeholder="Search menu..." />
+                                    <button type="button" class="nav_search-btn">
+                                        <i class="fa fa-search" aria-hidden="true"></i>
+                                    </button>
+                                </form>
+                            </li>
+                            <li class="nav-item" style="margin-left: 15px;">
+                                <a class="nav-link" href="book.html">
+                                    <i class="fa fa-user" aria-hidden="true"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item" style="margin-left: 10px;">
+                                <a class="nav-link" href="#" id="cartOpenBtn" onclick="openCart(); return false;">
+                                    <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </header>
+    </div>
+
+    <!-- Reports Section -->
+    <section class="reports-container">
+        <div class="container">
+            <div class="report-header">
+                <h1><span>Sales & Orders</span> Reports Dashboard</h1>
+                <div class="report-controls">
+                    <button class="active" data-filter="all" onclick="filterReports('all')">All Time</button>
+                    <button data-filter="today" onclick="filterReports('today')">Today</button>
+                    <button data-filter="week" onclick="filterReports('week')">This Week</button>
+                    <button data-filter="month" onclick="filterReports('month')">This Month</button>
+                    <button onclick="printReport()">🖨️ Print Report</button>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div id="summaryStats" class="stats-grid">
+                <!-- Stats populated by JavaScript -->
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-nav">
+                <button class="active" onclick="switchTab('overview')">Overview</button>
+                <button onclick="switchTab('daily')">Daily Sales</button>
+                <button onclick="switchTab('monthly')">Monthly Sales</button>
+                <button onclick="switchTab('orders')">Orders History</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="report-card">
+                    <h3>📊 Sales Overview</h3>
+                    <div id="overviewChart" class="chart-container">
+                        <div class="bar-chart" id="overviewBarChart"></div>
+                    </div>
+                </div>
+                
+                <div class="report-card">
+                    <h3>📈 Top Items</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Quantity Sold</th>
+                                    <th>Total Sales</th>
+                                    <th>Avg Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topItemsTable">
+                                <tr><td colspan="4" class="no-data">No data available</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Sales Tab -->
+            <div id="daily" class="tab-content">
+                <div class="report-card">
+                    <h3>📅 Daily Sales</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Orders</th>
+                                    <th>Items Sold</th>
+                                    <th>Total Sales (KSh)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dailySalesTable">
+                                <tr><td colspan="4" class="no-data">No data available</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Sales Tab -->
+            <div id="monthly" class="tab-content">
+                <div class="report-card">
+                    <h3>📆 Monthly Sales</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Orders</th>
+                                    <th>Items Sold</th>
+                                    <th>Total Sales (KSh)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="monthlySalesTable">
+                                <tr><td colspan="4" class="no-data">No data available</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders History Tab -->
+            <div id="orders" class="tab-content">
+                <div class="report-card">
+                    <h3>📋 Orders History</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Date & Time</th>
+                                    <th>Items</th>
+                                    <th>Total (KSh)</th>
+                                    <th>Phone Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersHistoryTable">
+                                <tr><td colspan="5" class="no-data">No orders yet</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="clear-data-btn" onclick="clearAllData()">🗑️ Clear All Data</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Panel -->
+    <div class="cart-panel" id="cartPanel">
+        <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd;">
+            <h5 style="margin: 0; color: #222831; font-weight: bold;">Your Order</h5>
+            <button onclick="closeCartPanel()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #222831;">×</button>
+        </div>
+        <div style="padding: 20px; flex: 1; overflow-y: auto;">
+            <div id="cart-items" style="margin-bottom: 20px;"></div>
+            <div style="background: #f8f8f8; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: right;">
+                <p style="margin: 0 0 10px 0; color: #666;">Total:</p>
+                <h3 style="margin: 0; color: #ffbe33; font-size: 28px;" id="cartTotal">KSh 0</h3>
+            </div>
+        </div>
+        <div style="padding: 20px; border-top: 1px solid #ddd;">
+            <input type="text" id="mpesaNumber" placeholder="Your M-Pesa Number (07...)" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px;" />
+            <button onclick="placeOrder()" style="width: 100%; padding: 12px; background: #ffbe33; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: #222831;">Place Order</button>
+        </div>
+        <div id="paymentInstructions" style="padding: 20px; border-top: 1px solid #ddd; display: none;"></div>
+    </div>
+
+    <section class="footer_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>About Us</h4>
+                    <p>Faith Restaurant serves authentic and delicious fast food with excellent customer service.</p>
+                </div>
+                <div class="col-md-4">
+                    <h4>Quick Links</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="menu.html">Menu</a></li>
+                        <li><a href="book.html">Book Table</a></li>
+                        <li><a href="reports.html">Reports</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Contact</h4>
+                    <p>📱 M-Pesa: 0117030765</p>
+                    <p>📍 Embu, Kenya</p>
+                </div>
+            </div>
+            <hr style="margin: 20px 0; border-color: #ddd;" />
+            <div style="text-align: center;">
+                <p style="margin: 0;">
+                    <span class="footer-logo">Faith</span> Restaurant © <span id="displayYear"></span>. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/custom.js"></script>
+    <script>
+        // Initialize reports on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAndDisplayReports();
+        });
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tabs-nav button').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            loadAndDisplayReports();
+        }
+
+        function filterReports(filter) {
+            // Update button state
+            document.querySelectorAll('.report-controls button[data-filter]').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Store filter preference and reload
+            window.reportFilter = filter;
+            loadAndDisplayReports();
+        }
+
+        function loadAndDisplayReports() {
+            const orders = JSON.parse(localStorage.getItem('faithOrders')) || [];
+            const filter = window.reportFilter || 'all';
+            const filtered = filterOrdersByDate(orders, filter);
+
+            displaySummaryStats(filtered);
+            displayOverviewChart(filtered);
+            displayTopItems(filtered);
+            displayDailySales(filtered);
+            displayMonthlySales(filtered);
+            displayOrdersHistory(filtered);
+        }
+
+        function filterOrdersByDate(orders, filter) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const weekStart = new Date(today);
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+            return orders.filter(order => {
+                const orderDate = new Date(order.timestamp);
+                const orderDay = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
+
+                switch(filter) {
+                    case 'today': return orderDay.getTime() === today.getTime();
+                    case 'week': return orderDay >= weekStart;
+                    case 'month': return orderDate >= monthStart;
+                    default: return true;
+                }
+            });
+        }
+
+        function displaySummaryStats(orders) {
+            let totalSales = 0;
+            let totalOrders = orders.length;
+            let totalItems = 0;
+
+            orders.forEach(order => {
+                totalSales += order.total;
+                order.items.forEach(item => totalItems += item.quantity);
+            });
+
+            const avgOrderValue = totalOrders > 0 ? Math.round(totalSales / totalOrders) : 0;
+
+            const statsHTML = `
+                <div class="stat-box">
+                    <h4>Total Sales</h4>
+                    <div class="stat-value">KSh ${totalSales.toLocaleString()}</div>
+                </div>
+                <div class="stat-box">
+                    <h4>Total Orders</h4>
+                    <div class="stat-value">${totalOrders}</div>
+                </div>
+                <div class="stat-box">
+                    <h4>Items Sold</h4>
+                    <div class="stat-value">${totalItems}</div>
+                </div>
+                <div class="stat-box">
+                    <h4>Avg Order Value</h4>
+                    <div class="stat-value">KSh ${avgOrderValue}</div>
+                </div>
+            `;
+
+            document.getElementById('summaryStats').innerHTML = statsHTML;
+        }
+
+        function displayOverviewChart(orders) {
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                last7Days.push({
+                    date: date,
+                    sales: 0,
+                    count: 0
+                });
+            }
+
+            orders.forEach(order => {
+                const orderDate = new Date(order.timestamp);
+                const orderDay = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
+                
+                const dayData = last7Days.find(d => {
+                    const d1 = new Date(d.date.getFullYear(), d.date.getMonth(), d.date.getDate());
+                    return d1.getTime() === orderDay.getTime();
+                });
+                
+                if (dayData) {
+                    dayData.sales += order.total;
+                    dayData.count++;
+                }
+            });
+
+            const maxSales = Math.max(...last7Days.map(d => d.sales), 1000);
+
+            const chartHTML = last7Days.map(day => {
+                const height = (day.sales / maxSales) * 100 || 5;
+                const dayName = day.date.toLocaleDateString('en-US', { weekday: 'short' });
+                return `
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                        <div class="bar" style="height: ${height}%;">
+                            <div class="bar-value" style="${height > 20 ? '' : 'display: none;'}">${day.count}</div>
+                        </div>
+                        <div class="bar-label">${dayName}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('overviewBarChart').innerHTML = chartHTML;
+        }
+
+        function displayTopItems(orders) {
+            const itemStats = {};
+
+            orders.forEach(order => {
+                order.items.forEach(item => {
+                    if (!itemStats[item.name]) {
+                        itemStats[item.name] = { quantity: 0, total: 0 };
+                    }
+                    itemStats[item.name].quantity += item.quantity;
+                    itemStats[item.name].total += item.price * item.quantity;
+                });
+            });
+
+            const sortedItems = Object.entries(itemStats)
+                .sort((a, b) => b[1].quantity - a[1].quantity)
+                .slice(0, 10);
+
+            if (sortedItems.length === 0) {
+                document.getElementById('topItemsTable').innerHTML = '<tr><td colspan="4" class="no-data">No items sold yet</td></tr>';
+                return;
+            }
+
+            const tableHTML = sortedItems.map(([name, stats]) => {
+                const avgPrice = Math.round(stats.total / stats.quantity);
+                return `
+                    <tr>
+                        <td><span class="item-name">${name}</span></td>
+                        <td><span class="item-quantity">${stats.quantity}</span></td>
+                        <td><span class="item-price">KSh ${stats.total.toLocaleString()}</span></td>
+                        <td><span class="item-price">KSh ${avgPrice.toLocaleString()}</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('topItemsTable').innerHTML = tableHTML;
+        }
+
+        function displayDailySales(orders) {
+            const dailyStats = {};
+
+            orders.forEach(order => {
+                const date = new Date(order.timestamp).toLocaleDateString();
+                if (!dailyStats[date]) {
+                    dailyStats[date] = { orders: 0, items: 0, sales: 0 };
+                }
+                dailyStats[date].orders++;
+                dailyStats[date].sales += order.total;
+                order.items.forEach(item => dailyStats[date].items += item.quantity);
+            });
+
+            if (Object.keys(dailyStats).length === 0) {
+                document.getElementById('dailySalesTable').innerHTML = '<tr><td colspan="4" class="no-data">No sales data</td></tr>';
+                return;
+            }
+
+            const tableHTML = Object.entries(dailyStats)
+                .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+                .map(([date, stats]) => `
+                    <tr>
+                        <td>${date}</td>
+                        <td><span class="item-quantity">${stats.orders}</span></td>
+                        <td><span class="item-quantity">${stats.items}</span></td>
+                        <td><span class="item-price">KSh ${stats.sales.toLocaleString()}</span></td>
+                    </tr>
+                `)
+                .join('');
+
+            document.getElementById('dailySalesTable').innerHTML = tableHTML;
+        }
+
+        function displayMonthlySales(orders) {
+            const monthlyStats = {};
+
+            orders.forEach(order => {
+                const date = new Date(order.timestamp);
+                const month = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+                if (!monthlyStats[month]) {
+                    monthlyStats[month] = { orders: 0, items: 0, sales: 0 };
+                }
+                monthlyStats[month].orders++;
+                monthlyStats[month].sales += order.total;
+                order.items.forEach(item => monthlyStats[month].items += item.quantity);
+            });
+
+            if (Object.keys(monthlyStats).length === 0) {
+                document.getElementById('monthlySalesTable').innerHTML = '<tr><td colspan="4" class="no-data">No sales data</td></tr>';
+                return;
+            }
+
+            const tableHTML = Object.entries(monthlyStats)
+                .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+                .map(([month, stats]) => `
+                    <tr>
+                        <td>${month}</td>
+                        <td><span class="item-quantity">${stats.orders}</span></td>
+                        <td><span class="item-quantity">${stats.items}</span></td>
+                        <td><span class="item-price">KSh ${stats.sales.toLocaleString()}</span></td>
+                    </tr>
+                `)
+                .join('');
+
+            document.getElementById('monthlySalesTable').innerHTML = tableHTML;
+        }
+
+        function displayOrdersHistory(orders) {
+            if (orders.length === 0) {
+                document.getElementById('ordersHistoryTable').innerHTML = '<tr><td colspan="5" class="no-data">No orders yet</td></tr>';
+                return;
+            }
+
+            const tableHTML = orders
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .map((order, index) => {
+                    const date = new Date(order.timestamp).toLocaleDateString();
+                    const time = new Date(order.timestamp).toLocaleTimeString();
+                    const itemsList = order.items.map(i => `${i.name} (${i.quantity})`).join(', ');
+                    return `
+                        <tr>
+                            <td>#${orders.length - index}</td>
+                            <td>${date} ${time}</td>
+                            <td>${itemsList}</td>
+                            <td><span class="item-price">KSh ${order.total.toLocaleString()}</span></td>
+                            <td>${order.phone}</td>
+                        </tr>
+                    `;
+                })
+                .join('');
+
+            document.getElementById('ordersHistoryTable').innerHTML = tableHTML;
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete all sales and order data? This action cannot be undone.')) {
+                localStorage.removeItem('faithOrders');
+                loadAndDisplayReports();
+                alert('All data has been cleared.');
+            }
+        }
+    </script>
+</body>
+</html>
